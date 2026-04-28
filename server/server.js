@@ -5,6 +5,7 @@ const cors = require("cors");
 const productRoutes = require("./routes/productRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const authRoutes = require("./routes/authRoutes");
+const adminAuth = require("./routes/adminAuth");
 
 const app = express();
 const PORT = 5000;
@@ -14,6 +15,9 @@ const PORT = 5000;
 ----------------------------- */
 app.use(cors());
 app.use(express.json());
+app.use(express.json());
+app.use("/api/admin", adminAuth);
+app.use("/uploads", express.static("uploads"));
 
 /* -----------------------------
    MongoDB Connection

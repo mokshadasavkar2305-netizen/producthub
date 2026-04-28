@@ -1,54 +1,47 @@
-// src/App.js
-
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import Navbar from "./Navbar";
 import Home from "./Home";
 import Cart from "./Cart";
-import Checkout from "./Checkout";
 import Wishlist from "./Wishlist";
-import Admin from "./Admin";
-import ProductDetails from "./ProductDetails";
-import Login from "./Login";
-import Signup from "./Signup";
 import Orders from "./Orders";
+import Admin from "./Admin";
+import Checkout from "./Checkout";
+import ProductDetails from "./ProductDetails";
 
-export default function App() {
+import AdminLogin from "./AdminLogin";
+import ProtectedRoute from "./ProtectedRoute";
+
+function App() {
   return (
-    <BrowserRouter>
+    <Router>
+      {/* Navbar visible on all pages */}
       <Navbar />
 
       <Routes>
-        {/* Home */}
+        {/* PUBLIC ROUTES */}
         <Route path="/" element={<Home />} />
-
-        {/* Cart */}
         <Route path="/cart" element={<Cart />} />
-
-        {/* Checkout */}
-        <Route path="/checkout" element={<Checkout />} />
-
-        {/* Wishlist */}
         <Route path="/wishlist" element={<Wishlist />} />
-
-        {/* Orders */}
         <Route path="/orders" element={<Orders />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/product/:id" element={<ProductDetails />} />
 
-        {/* Admin */}
-        <Route path="/admin" element={<Admin />} />
+        {/* ADMIN LOGIN (PUBLIC) */}
+        <Route path="/admin-login" element={<AdminLogin />} />
 
-        {/* Product Details */}
+        {/* PROTECTED ADMIN DASHBOARD */}
         <Route
-          path="/product/:id"
-          element={<ProductDetails />}
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <Admin />
+            </ProtectedRoute>
+          }
         />
-
-        {/* Login */}
-        <Route path="/login" element={<Login />} />
-
-        {/* Signup */}
-        <Route path="/signup" element={<Signup />} />
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
 }
+
+export default App;

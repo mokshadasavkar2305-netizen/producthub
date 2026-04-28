@@ -1,16 +1,28 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function Admin() {
   const [products, setProducts] = useState([]);
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
     name: "",
     price: "",
-    image: "",
-    category: ""
+    category: "",
+    image: null
   });
 
+  // 🔐 Admin protection
+  useEffect(() => {
+    const token = sessionStorage.getItem("adminToken");
+
+    if (!token) {
+      navigate("/admin-login");
+    }
+  }, [navigate]);
+
+  // 📦 Fetch products
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -21,11 +33,12 @@ export default function Admin() {
         "http://localhost:5000/api/products"
       );
       setProducts(res.data);
-    } catch (error) {
-      console.log(error);
+    } catch (err) {
+      console.log(err);
     }
   };
 
+  // ✍️ Handle text input
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -33,13 +46,28 @@ export default function Admin() {
     });
   };
 
+  // 🖼️ Handle image file
+  const handleFileChange = (e) => {
+    setFormData({
+      ...formData,
+      image: e.target.files[0]
+    });
+  };
+
+  // ➕ Add product (with image upload)
   const handleAddProduct = async (e) => {
     e.preventDefault();
+
+    const form = new FormData();
+    form.append("name", formData.name);
+    form.append("price", formData.price);
+    form.append("category", formData.category);
+    form.append("image", formData.image);
 
     try {
       await axios.post(
         "http://localhost:5000/api/products/add",
-        formData
+        form
       );
 
       alert("Product added successfully 🎉");
@@ -47,8 +75,8 @@ export default function Admin() {
       setFormData({
         name: "",
         price: "",
-        image: "",
-        category: ""
+        category: "",
+        image: null
       });
 
       fetchProducts();
@@ -57,6 +85,7 @@ export default function Admin() {
     }
   };
 
+  // 🗑️ Delete product
   const handleDelete = async (id) => {
     try {
       await axios.delete(
@@ -64,22 +93,30 @@ export default function Admin() {
       );
 
       alert("Product deleted 🗑️");
-
       fetchProducts();
     } catch (error) {
       alert("Delete failed ❌");
     }
   };
 
+  // 🚪 Logout
+  const handleLogout = () => {
+    sessionStorage.removeItem("adminToken");
+    navigate("/admin-login");
+  };
+
   return (
     <div style={styles.page}>
-      <h1>👑 Admin Dashboard</h1>
+      <div style={styles.header}>
+        <h1>👑 Admin Dashboard</h1>
 
-      {/* Add Product Form */}
-      <form
-        onSubmit={handleAddProduct}
-        style={styles.form}
-      >
+        <button onClick={handleLogout} style={styles.logoutBtn}>
+          Logout
+        </button>
+      </div>
+
+      {/* ➕ ADD PRODUCT */}
+      <form onSubmit={handleAddProduct} style={styles.form}>
         <input
           type="text"
           name="name"
@@ -102,16 +139,6 @@ export default function Admin() {
 
         <input
           type="text"
-          name="image"
-          placeholder="Image URL"
-          value={formData.image}
-          onChange={handleChange}
-          required
-          style={styles.input}
-        />
-
-        <input
-          type="text"
           name="category"
           placeholder="Category"
           value={formData.category}
@@ -120,23 +147,30 @@ export default function Admin() {
           style={styles.input}
         />
 
-        <button
-          type="submit"
-          style={styles.button}
-        >
-          Add Product
+        {/* 🖼️ IMAGE UPLOAD */}
+        <input
+          type="file"
+          onChange={handleFileChange}
+          required
+          style={styles.input}
+        />
+
+        <button type="submit" style={styles.button}>
+          Add Product ➕
         </button>
       </form>
 
-      {/* Product List */}
+      {/* 📦 PRODUCTS */}
       <div style={styles.grid}>
         {products.map((product) => (
-          <div
-            key={product._id}
-            style={styles.card}
-          >
+          <div key={product._id} style={styles.card}>
+            
             <img
-              src={product.image}
+              src={
+                product.image
+                  ? `http://localhost:5000${product.image}`
+                  : "https://via.placeholder.com/300"
+              }
               alt={product.name}
               style={styles.image}
             />
@@ -146,12 +180,10 @@ export default function Admin() {
             <p>{product.category}</p>
 
             <button
-              onClick={() =>
-                handleDelete(product._id)
-              }
+              onClick={() => handleDelete(product._id)}
               style={styles.deleteBtn}
             >
-              Delete
+              Delete ❌
             </button>
           </div>
         ))}
@@ -160,26 +192,44 @@ export default function Admin() {
   );
 }
 
+/* 🎨 STYLES */
 const styles = {
   page: {
-    padding: "30px"
+    padding: "30px",
+    fontFamily: "Arial"
+  },
+
+  header: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "20px"
+  },
+
+  logoutBtn: {
+    padding: "10px 16px",
+    background: "red",
+    color: "white",
+    border: "none",
+    borderRadius: "8px",
+    cursor: "pointer"
   },
 
   form: {
     display: "grid",
     gap: "15px",
-    marginBottom: "40px",
-    maxWidth: "500px"
+    maxWidth: "500px",
+    marginBottom: "40px"
   },
 
   input: {
-    padding: "14px",
+    padding: "12px",
     border: "1px solid #ccc",
     borderRadius: "8px"
   },
 
   button: {
-    padding: "14px",
+    padding: "12px",
     background: "#111",
     color: "white",
     border: "none",
@@ -195,10 +245,10 @@ const styles = {
   },
 
   card: {
-    background: "white",
-    padding: "20px",
+    padding: "15px",
     borderRadius: "12px",
-    boxShadow: "0 4px 10px rgba(0,0,0,0.06)"
+    boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
+    textAlign: "center"
   },
 
   image: {

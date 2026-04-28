@@ -15,7 +15,7 @@ export default function Home() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/products")
+      .get("https://producthub-backend-k3mj.onrender.com/api/products")
       .then((res) => setProducts(res.data))
       .catch((err) => console.log(err));
   }, []);
@@ -38,99 +38,96 @@ export default function Home() {
 
   return (
     <div style={styles.page}>
-      <div style={styles.overlay}></div>
+        <div style={styles.overlay}></div>
+        <div style={styles.container}></div>
+      {/* Hero Section */}
+      <div style={styles.hero}>
+        <h1>Welcome to ShopZone 🛍️</h1>
+        <p>Your Premium Shopping experience Starts here..</p>
+      </div>
 
-      <div style={styles.container}>
-        {/* HERO */}
-        <div style={styles.hero}>
-          <h1>Welcome to ShopZone 🛍️</h1>
-          <p>Your premium shopping experience starts here</p>
-        </div>
+      {/* Search + Category Filter */}
+      <div style={styles.controls}>
+        <input
+          type="text"
+          placeholder="Search products..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={styles.search}
+        />
 
-        {/* CONTROLS */}
-        <div style={styles.controls}>
-          <input
-            type="text"
-            placeholder="Search products..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            style={styles.search}
-          />
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          style={styles.select}
+        >
+          {categories.map((cat, index) => (
+            <option key={index} value={cat}>
+              {cat}
+            </option>
+          ))}
+        </select>
+      </div>
 
-          <select
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            style={styles.select}
-          >
-            {categories.map((cat, index) => (
-              <option key={index} value={cat}>
-                {cat}
-              </option>
-            ))}
-          </select>
-        </div>
+      {/* Products */}
+      <h2 style={{color: "white", textAlign: "center"}}>
+        Featured Products
+      </h2>
 
-        {/* PRODUCTS */}
-        <h2 style={{ color: "white", textAlign: "center" }}>
-          Featured Products
-        </h2>
-
-        <div style={styles.grid}>
-          {filteredProducts.length === 0 ? (
-            <p style={{ color: "white" }}>No products found 😢</p>
-          ) : (
-            filteredProducts.map((item) => (
-              <div
-                key={item._id}
-                style={styles.card}
-                onMouseEnter={(e) =>
-                  (e.currentTarget.style.transform =
+      <div style={styles.grid}>
+        {filteredProducts.length === 0 ? (
+          <p style={{color: "white"}}>No products found 😢</p>
+        ) : (
+          filteredProducts.map((item) => (
+            <div key={item._id} 
+                 style={styles.card}
+                 onMouseEnter={(e) =>
+                 (e.currentTarget.style.transform =
                     "translateY(-8px)")
-                }
-                onMouseLeave={(e) =>
-                  (e.currentTarget.style.transform =
+                 }
+                 onMouseLeave={(e) =>
+                 (e.currentTarget.style.transform = 
                     "translateY(0px)")
-                }
+                 }
+                 >
+                    
+              <Link
+                to={`/product/${item._id}`}
+                style={styles.link}
               >
-                <Link
-                  to={`/product/${item._id}`}
-                  style={styles.link}
-                >
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    style={styles.image}
-                  />
+                <img
+                  src={item.image}
+                  alt={item.name}
+                  style={styles.image}
+                />
 
-                  <h3>{item.name}</h3>
-                </Link>
+                <h3>{item.name}</h3>
+              </Link>
 
-                <p>{item.category}</p>
-                <p>₹ {item.price}</p>
+              <p>{item.category}</p>
+              <p>₹ {item.price}</p>
 
-                <button
-                  style={styles.cartBtn}
-                  onClick={() => addToCart(item)}
-                >
-                  Add to Cart 🛒
-                </button>
+              <button
+                style={styles.cartBtn}
+                onClick={() => addToCart(item)}
+              >
+                Add to Cart 🛒
+              </button>
 
-                <button
-                  style={styles.wishlistBtn}
-                  onClick={() => addToWishlist(item)}
-                >
-                  Add to Wishlist ❤️
-                </button>
-              </div>
-            ))
-          )}
-        </div>
+              <button
+                style={styles.wishlistBtn}
+                onClick={() => addToWishlist(item)}
+              >
+                Add to Wishlist ❤️
+              </button>
+            </div>
+          ))
+        )}
       </div>
     </div>
   );
 }
 
-/* 🌟 PREMIUM STYLES */
 const styles = {
   page: {
     padding: "30px",
@@ -143,15 +140,8 @@ const styles = {
     fontFamily: "Arial, sans-serif"
   },
 
-  overlay: {
-    position: "fixed",
-    inset: 0,
-    background:
-      "linear-gradient(135deg, rgba(0,0,0,0.65), rgba(0,0,0,0.4))",
-    zIndex: 0
-  },
-
-  container: {
+  container:
+  {
     position: "relative",
     zIndex: 2
   },
@@ -159,7 +149,7 @@ const styles = {
   hero: {
     textAlign: "center",
     padding: "60px 20px",
-    color: "white",
+    color: "brown",
     background: "rgba(255,255,255,0.08)",
     backdropFilter: "blur(12px)",
     borderRadius: "16px",
@@ -200,6 +190,7 @@ const styles = {
     gap: "25px"
   },
 
+
   card: {
     borderRadius: "16px",
     padding: "20px",
@@ -207,14 +198,14 @@ const styles = {
     background: "rgba(255,255,255,0.1)",
     backdropFilter: "blur(12px)",
     boxShadow: "0 8px 25px rgba(0,0,0,0.3)",
-    color: "white",
+    color: "black",
     transition: "0.3s ease",
     cursor: "pointer"
   },
 
   link: {
     textDecoration: "none",
-    color: "white"
+    color: "black"
   },
 
   image: {
