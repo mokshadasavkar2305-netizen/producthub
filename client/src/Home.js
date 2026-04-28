@@ -15,7 +15,7 @@ export default function Home() {
 
   useEffect(() => {
     axios
-      .get("http://localhost:5000/api/products")
+      .get("https://producthub-backend-k3mj.onrender.com/api/products")
       .then((res) => setProducts(res.data))
       .catch((err) => console.log(err));
   }, []);
@@ -87,7 +87,7 @@ export default function Home() {
                  }
                  onMouseLeave={(e) =>
                  (e.currentTarget.style.transform = 
-                    "translateY(0pcx)")
+                    "translateY(0px)")
                  }
                  >
                     
